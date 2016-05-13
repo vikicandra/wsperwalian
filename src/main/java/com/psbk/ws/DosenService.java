@@ -33,6 +33,33 @@ import org.codehaus.jettison.json.JSONObject;
 @Path("/dosen")
 public class DosenService extends MasterConnection{
     
+      @GET
+    @Path("/getDosen/{id_dosen}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map getDataDosen(@PathParam("id_dosen") String id_dosen){
+        Map<String, Object> result = new HashMap<String, Object>();
+        
+        result.put("message", "INQUIRY BERHASIL");
+        
+        try{
+            
+            createConnection();
+            String sql = "select * from dosen where id_dosen = ?";
+            MyMap mhs = (MyMap) jt.queryObject(sql, new Object[] {id_dosen},new MyMap());
+            closeConnection();
+            if(mhs != null){
+                result.put("code", "200");
+                result.put("status", "ok");
+                result.put("result", mhs);
+            }
+        }catch(Exception e){
+            result.put("code", "404");
+            result.put("status", "not found");
+            result.put("message", "Gagal karena : "+e.getMessage());
+        }
+        
+        return result;
+    }
    
     
     @GET

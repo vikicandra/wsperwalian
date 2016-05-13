@@ -15,6 +15,7 @@ import java.util.Map;
 import static javafx.scene.input.KeyCode.T;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -37,33 +38,7 @@ import org.springframework.jdbc.core.RowMapper;
 @Path("/mahasiswa")
 public class MahasiswaService extends MasterConnection{
     
-    @GET
-    @Path("/mhsAll")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map getMhsAll(){
-        Map<String, Object> result = new HashMap<String, Object>();
-       
-        try{           
-            createConnection();
-            String sql = "select * from mahasiswa";
-            List<MyMap> mhs = jt.queryList(sql, new MyMap());
-            closeConnection();
-            if(mhs != null){
-                result.put("code", "200");
-                result.put("status", "ok");
-                result.put("message", "INQUIRY BERHASIL");
-                result.put("result", mhs);
-            }
-        }catch(Exception e){
-            result.put("code", "404");
-            result.put("status", "not found");
-            result.put("message", "Gagal karena : "+e.getMessage());
-        }
-        
-        return result;
-    }
-    
-    @GET
+   @GET
     @Path("/mhsByNrp/{nrp}")
     @Produces(MediaType.APPLICATION_JSON)
     public Map getMhsById(@PathParam("nrp") String nrp){
@@ -145,32 +120,26 @@ public class MahasiswaService extends MasterConnection{
             JSONObject json = new JSONObject(sb.toString());
             jsonArray = (JSONArray) json.get("request");
             
-          for (int i = 0; i < jsonArray.length() ; i++) {
-                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                json = (JSONObject) jsonObject.get("map");
-                                
-                data.put("nrp", json.getString("nrp"));
-                data.put("semester", json.getInt("semester"));
-                data.put("status", json.getString("status"));
-                
-                if(i == 0){
-                    jt.insert("perwalian", data);
-                }   
-                
-                data.put("kode_mk", json.getString("kode_mk"));
-                
-                jt.insert("krs", data);
-                
-            }
+       
+            JSONObject jsonObject = (JSONObject) jsonArray.get(0);
+            json = (JSONObject) jsonObject.get("map");
+
+            data.put("nrp", json.getString("nrp"));
+            data.put("semester", json.getInt("semester"));
+            data.put("status", json.getString("status"));
+
+            jt.insert("perwalian", data);
+
+            data.put("kode_mk", json.getString("kode_mk"));
+
           
           String sql = "select id_perwalian from perwalian where nrp = ? and semester = ?";
             int idPerwalian = jt.queryForInt(sql, new Object[] {json.getString("nrp"), +json.getInt("semester")});
             
             for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                json = (JSONObject) jsonObject.get("map");
+                JSONObject jsonObject2 = (JSONObject) jsonArray.get(i);
+                json = (JSONObject) jsonObject2.get("map");
                                 
-                System.out.println("A");
                 dataP.put("id_perwalian", idPerwalian);
                 dataP.put("kode_mk", json.getString("kode_mk"));
                 jt.insert("detail_perwalian", dataP);
@@ -184,47 +153,5 @@ public class MahasiswaService extends MasterConnection{
         return respon;
     }
     
-    
-    @POST
-    @Path("/coba")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Object coba(@Context HttpServletRequest hsr){
-        JSONArray jsonArray = null;
-        JSONObject result;
-        StringBuffer sb = new StringBuffer();
-        DataInputStream in;
-        MyMap respon = new MyMap(); 
-        MyMap data = new MyMap();
-        String line;
-        
-        try{
-            createConnection();
-            in = new DataInputStream(new BufferedInputStream(hsr.getInputStream()));
-            
-            while((line = in.readLine()) != null)
-                sb.append(line);
-            
-            JSONObject json = new JSONObject(sb.toString());
-            jsonArray = (JSONArray) json.get("result");
-            
-            for (int i = 0; i < jsonArray.length() ; i++) {
-                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                json = (JSONObject) jsonObject.get("map");
-                                
-                data.put("nrp", json.getString("nrp"));
-                data.put("kode_mk", json.getString("kode_mk"));
-                data.put("semester", json.getInt("semester"));
-                data.put("status", json.getString("status"));
-                
-                jt.insert("kontrak_matakuliah", data);
-            }
-           
-            
-        }catch(Exception e){
-            respon.put("gagal : ", e.getMessage());
-        }
-        
-        return respon;
-    }
     
 }
