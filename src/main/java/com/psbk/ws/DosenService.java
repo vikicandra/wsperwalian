@@ -15,11 +15,16 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
@@ -30,7 +35,8 @@ import org.codehaus.jettison.json.JSONObject;
 @Path("/dosen")
 public class DosenService extends MasterConnection{
     
-    @GET
+
+      @GET
     @Path("/getDosen/{id_dosen}")
     @Produces(MediaType.APPLICATION_JSON)
     public Map getDataDosen(@PathParam("id_dosen") String id_dosen){
@@ -57,7 +63,7 @@ public class DosenService extends MasterConnection{
         
         return result;
     }
-    
+
     @GET
     @Path("/getMhsWali/{id_dosen}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -69,7 +75,9 @@ public class DosenService extends MasterConnection{
         try{
             
             createConnection();
-            String sql = "select M.nrp, M.nama, P.status from mahasiswa as M inner join perwalian as P "
+
+            String sql = "select M.nrp, M.nama, P.status, P.id_perwalian from mahasiswa as M inner join perwalian as P "
+
                        + "on M.nrp = P.nrp where id_dosen = ?";
             List<MyMap> mhs = jt.queryList(sql, new Object[] {id_dosen},new MyMap());
             closeConnection();
@@ -86,7 +94,7 @@ public class DosenService extends MasterConnection{
         
         return result;
     }
-    
+  
     @GET
     @Path("/getDetailMhs/{nrp}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -296,6 +304,7 @@ public class DosenService extends MasterConnection{
 //        return result;
 //    }
     
+
     @POST
     @Path("/apa")
     @Produces(MediaType.APPLICATION_JSON)
@@ -325,7 +334,7 @@ public class DosenService extends MasterConnection{
             String sql = "SELECT * FROM dosen where id_dosen = ?";
                         
             String nrp = request.getString("id_dosen");
-            System.out.println(nrp);
+
             MyMap mhs = (MyMap) jt.queryObject(sql, new Object[] {nrp},new MyMap());
             closeConnection();
 
@@ -337,12 +346,114 @@ public class DosenService extends MasterConnection{
             }
 //                 
         }catch(Exception e){
-               e.printStackTrace();
+
                respon.put("message", e.getMessage());
                respon.put("rCode", "99");
                respon.put("statusId", "0");
            }
         return respon;
+
+    }   
+   
+    @DELETE
+    @Path("/dropMkMhs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object dropMkMhs(@Context HttpServletRequest hsr){
+        DataInputStream in;
+        StringBuffer sb = new StringBuffer();
+        MyMap respon = new MyMap();
+        String line;
+        
+        
+         try{
+            createConnection();
+            in = new DataInputStream(new BufferedInputStream(hsr.getInputStream()));
+            
+            while((line = in.readLine()) != null)
+                sb.append(line);
+            
+            JSONObject json = new JSONObject(sb.toString());
+            JSONObject request = (JSONObject) json.get("request");
+            
+            String sql = "delete from detail_perwalian where id_detail_perwalian = ? ";
+            int a = jt.update(sql, new Object[] {request.getInt("id_detail_perwalian")});
+            
+            closeConnection();
+            
+            respon.put("rCode", "200");
+            
+            
+        }catch(Exception e){
+            respon.put("message", e.getMessage());
+            respon.put("rCode", "99");
+            respon.put("statusId", "0");
+        }
+        
+        return respon;
+        
+    }
+    
+    @GET
+    @Path("/detailMhs/{id_perwalian}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object detailMhs(@PathParam("id_perwalian") String id_p){
+        Map<String, Object> result = new HashMap<String, Object>();
+        try{
+            createConnection();
+            String sql = "select * from detail_perwalian where id_perwalian = ?";
+            List<MyMap> matkul = jt.queryList(sql, new Object[] {id_p}, new MyMap());
+            
+            if(matkul != null){
+                result.put("code", "200");
+                result.put("status", "ok");
+                result.put("message", "INQUIRY BERHASIL");
+                result.put("result", matkul);
+                
+            }else{
+                result.put("code", "404");
+                result.put("status", "not found");
+            }
+        }catch(Exception e){            
+            result.put("message", "Gagal karena : "+e.getMessage());
+        }
+        return result;
+    }
+    
+    @PUT
+    @Path("/insertBeritaAcara")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object insertBeritaAcara(@Context HttpServletRequest hsr){
+        DataInputStream in;
+        StringBuffer sb = new StringBuffer();
+        MyMap respon = new MyMap();
+        String line;
+        
+        
+         try{
+            createConnection();
+            in = new DataInputStream(new BufferedInputStream(hsr.getInputStream()));
+            
+            while((line = in.readLine()) != null)
+                sb.append(line);
+            
+            JSONObject json = new JSONObject(sb.toString());
+            JSONObject request = (JSONObject) json.get("request");
+            
+            String sql = "update perwalian set berita_acara = ? where id_perwalian = ?";
+            int a = jt.update(sql, new Object[] {request.getString("berita_acara"), request.getInt("id_perwalian")});
+            
+            closeConnection();
+            
+            respon.put("rCode", "200");
+            
+            
+        }catch(Exception e){
+            respon.put("message", e.getMessage());
+            respon.put("rCode", "99");
+            respon.put("statusId", "0");
+        }
+         
+         return respon;
     }
     
 }

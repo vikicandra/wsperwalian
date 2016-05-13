@@ -435,4 +435,12 @@ public class JdbcTemplate extends org.springframework.jdbc.core.JdbcTemplate {
 		}
 		transactionManager.commit(status);
 	}
+
+    public MyMap queryObject(String sql, Object[] object) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public MyMap query(String sql, Object[] object) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

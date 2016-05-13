@@ -15,6 +15,7 @@ import java.util.Map;
 import static javafx.scene.input.KeyCode.T;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -37,16 +38,19 @@ import org.springframework.jdbc.core.RowMapper;
 @Path("/mahasiswa")
 public class MahasiswaService extends MasterConnection{
     
-    @GET
-    @Path("/mhsAll")
+   @GET
+    @Path("/mhsByNrp/{nrp}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map getMhsAll(){
+    public Map getMhsById(@PathParam("nrp") String nrp){
         Map<String, Object> result = new HashMap<String, Object>();
-       
-        try{           
+        
+        result.put("message", "INQUIRY BERHASIL");
+        
+        try{
+            
             createConnection();
-            String sql = "select * from mahasiswa";
-            List<MyMap> mhs = jt.queryList(sql, new MyMap());
+            String sql = "select * from mahasiswa where nrp = ?";
+            MyMap mhs = (MyMap) jt.queryObject(sql, new Object[] {nrp},new MyMap());
             closeConnection();
             if(mhs != null){
                 result.put("code", "200");
@@ -64,9 +68,9 @@ public class MahasiswaService extends MasterConnection{
     }
     
     @GET
-    @Path("/mhsByNrp/{nrp}")
+    @Path("/getDetailMhs/{nrp}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map getMhsById(@PathParam("nrp") String nrp){
+    public Map getDetailMhs(@PathParam("nrp") String nrp){
         Map<String, Object> result = new HashMap<String, Object>();
         
         result.put("message", "INQUIRY BERHASIL");
@@ -74,8 +78,11 @@ public class MahasiswaService extends MasterConnection{
         try{
             
             createConnection();
-            String sql = "select * from mahasiswa where nrp = ?";
-            MyMap mhs = (MyMap) jt.queryObject(sql, new Object[] {nrp},new MyMap());
+            String sql = "SELECT * FROM " +
+                        "matakuliah as M LEFT JOIN (detail_perwalian as DP join perwalian as P " +
+                        "ON DP.id_perwalian = P.id_perwalian and DP.id_perwalian = " +
+                        "(SELECT id_perwalian from perwalian where nrp = ?) )ON M.kode_mk = DP.kode_mk";
+            List<MyMap> mhs = jt.queryList(sql, new Object[] {nrp},new MyMap());
             closeConnection();
             if(mhs != null){
                 result.put("code", "200");
@@ -92,13 +99,16 @@ public class MahasiswaService extends MasterConnection{
     }
     
     @POST
-    @Path("/insertMatkul")
+    @Path("/addMatkul")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map insertMatkul(@Context HttpServletRequest hsr) throws JSONException{
-        Map response = new HashMap();
+    public Object addMatkul(@Context HttpServletRequest hsr) throws JSONException{
+        MyMap respon = new MyMap();
+        MyMap data = new MyMap();
+        MyMap dataP = new MyMap();
         DataInputStream in;
         String line = null;
         StringBuffer sb = new StringBuffer();
+        JSONArray jsonArray;
         
         try{
             createConnection();
@@ -112,48 +122,15 @@ public class MahasiswaService extends MasterConnection{
             JSONObject request = (JSONObject) json.get("request");
             
             if(request == null){
-                response.put("status", "null");
+                respon.put("status", "null");
             }else{
-                response.put("status", "ada");
+                respon.put("status", "ada");
             }
         }catch(Exception e){
-            response.put("status", e.getMessage());
-        }
-        
-        return response;
-    }
-    
-    
-    @POST
-    @Path("/coba")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Object coba(@Context HttpServletRequest hsr){
-        JSONArray request = null;
-        StringBuffer sb = new StringBuffer();
-        DataInputStream in;
-        MyMap respon = new MyMap(); 
-        String line;
-        
-        try{
-            createConnection();
-            in = new DataInputStream(new BufferedInputStream(hsr.getInputStream()));
-            
-            while((line = in.readLine()) != null)
-                sb.append(line);
-            
-            JSONObject json = new JSONObject(sb.toString());
-            request = (JSONArray) json.get("result");
-            
-            for (int i = 0; i < request.length() ; i++) {
-                System.out.println(i);
-            }
-           
-            
-        }catch(Exception e){
-            respon.put("gagal : ", e.getMessage());
+            respon.put("status", e.getMessage());
         }
         
         return respon;
     }
-    
+        
 }

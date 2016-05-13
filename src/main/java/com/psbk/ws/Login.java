@@ -11,23 +11,23 @@ package com.psbk.ws;
  * @author Eka Windo
  */
 public class Login {
+
+    private String username;
+    private String password;
     
-    private String id_admin;
-    private String kata_sandi;
-    
-    public String getIdAdmin(){
-        return id_admin;
+    public String getUsername(){
+        return username;
     }
     
-    public void setIdAdmin(String id_admin){
-        this.id_admin = id_admin;
+    public void setUsername(String username){
+        this.username = username;
     }
     
-    public String getKataSandi(){
-        return kata_sandi;
+    public String getPassword(){
+        return password;
     }
     
-    public void setKataSandi(String kata_sandi){
-        this.kata_sandi = kata_sandi;
+    public void setPassword(String password){
+        this.password = password;
     }
 }
