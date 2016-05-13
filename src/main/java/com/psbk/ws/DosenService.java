@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -20,6 +21,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
@@ -170,5 +172,45 @@ public class DosenService extends MasterConnection{
         return respon;
         
     }
-//    
+    
+    @DELETE
+    @Path("/dropMkMhs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object dropMkMhs(@Context HttpServletRequest hsr){
+        StringBuffer sb = new StringBuffer();
+        DataInputStream in;
+        String line = null;
+        JSONArray jsonArray;
+        MyMap respon = new MyMap();
+        
+        try{
+            createConnection();
+            in = new DataInputStream(new BufferedInputStream(hsr.getInputStream()));
+            
+            while((line = in.readLine()) != null)
+                sb.append(sb);
+            
+            JSONObject json = new JSONObject(sb.toString());
+            jsonArray = (JSONArray) json.get("request");
+             System.out.println("AAAAAAAAA");
+             for (int i = 0; i < jsonArray.length() ; i++) {
+                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                json = (JSONObject) jsonObject.get("map");
+                
+                String sql = "delete from detail_perwalian where id_perwalian = ? and kode_mk = ?";
+                MyMap mkDrop = jt.query(sql, new Object[] {json.getInt("id_perwalian"), json.getString("kode_mk")});
+               
+            }
+              System.out.println("BBBBBB");
+             respon.put("hasil", "yes");
+            
+            
+        }
+        catch(Exception e){
+            respon.put("hasil", "ah");
+            
+        }
+        return respon;
+    }
+    
 }
