@@ -57,7 +57,7 @@ public class PerwalianService extends MasterConnection{
 		return respon;
             }		
 		jt.update("UPDATE perwalian SET status=? WHERE id_perwalian=?",new Object[] {
-                    request.getString("status")});
+                    request.getString("status"), request.getInt("id_perwalian")});
                 respon.put("message", "Data berhasil diubah");
 		respon.put("rCode","00");
 		respon.put("statusId", "1");
