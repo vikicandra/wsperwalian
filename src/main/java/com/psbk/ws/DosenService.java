@@ -267,34 +267,34 @@ public class DosenService extends MasterConnection{
 //    }
     
     //cobaaaaaaaaaaaaaaaaaaaaaaa
-    @GET
-    @Path("/x/{nrp}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map getList(@PathParam("nrp") String nrp){
-        Map<String, Object> result = new HashMap<String, Object>();
-        
-        result.put("message", "INQUIRY BERHASIL");
-        
-        try{
-            
-            createConnection();
-             String sql = "select M.nrp, M.nama from mahasiswa as M inner join perwalian as P "
-                       + "on M.nrp = P.nrp where id_dosen = ?";
-            List<MyMap> mhs = jt.queryList(sql, new Object[] {nrp},new MyMap());
-            closeConnection();
-            if(mhs != null){
-                result.put("code", "200");
-                result.put("status", "ok");
-                result.put("result", mhs);
-            }
-        }catch(Exception e){
-            result.put("code", "404");
-            result.put("status", "not found");
-            result.put("message", "Gagal karena : "+e.getMessage());
-        }
-        
-        return result;
-    }
+//    @GET
+//    @Path("/x/{nrp}")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Map getList(@PathParam("nrp") String nrp){
+//        Map<String, Object> result = new HashMap<String, Object>();
+//        
+//        result.put("message", "INQUIRY BERHASIL");
+//        
+//        try{
+//            
+//            createConnection();
+//             String sql = "select M.nrp, M.nama from mahasiswa as M inner join perwalian as P "
+//                       + "on M.nrp = P.nrp where id_dosen = ?";
+//            List<MyMap> mhs = jt.queryList(sql, new Object[] {nrp},new MyMap());
+//            closeConnection();
+//            if(mhs != null){
+//                result.put("code", "200");
+//                result.put("status", "ok");
+//                result.put("result", mhs);
+//            }
+//        }catch(Exception e){
+//            result.put("code", "404");
+//            result.put("status", "not found");
+//            result.put("message", "Gagal karena : "+e.getMessage());
+//        }
+//        
+//        return result;
+//    }
     
     @POST
     @Path("/apa")

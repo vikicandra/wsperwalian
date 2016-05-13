@@ -12,15 +12,15 @@ package com.psbk.ws;
  */
 public class Login {
     
-    private String id_dosen;
+    private String id_admin;
     private String kata_sandi;
     
-    public String getIdDosen(){
-        return id_dosen;
+    public String getIdAdmin(){
+        return id_admin;
     }
     
-    public void setIdDeosen(String id_dosen){
-        this.id_dosen = id_dosen;
+    public void setIdAdmin(String id_admin){
+        this.id_admin = id_admin;
     }
     
     public String getKataSandi(){
