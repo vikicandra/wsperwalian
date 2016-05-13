@@ -33,33 +33,7 @@ import org.codehaus.jettison.json.JSONObject;
 @Path("/dosen")
 public class DosenService extends MasterConnection{
     
-    @GET
-    @Path("/getDosen/{id_dosen}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map getDataDosen(@PathParam("id_dosen") String id_dosen){
-        Map<String, Object> result = new HashMap<String, Object>();
-        
-        result.put("message", "INQUIRY BERHASIL");
-        
-        try{
-            
-            createConnection();
-            String sql = "select * from dosen where id_dosen = ?";
-            MyMap mhs = (MyMap) jt.queryObject(sql, new Object[] {id_dosen},new MyMap());
-            closeConnection();
-            if(mhs != null){
-                result.put("code", "200");
-                result.put("status", "ok");
-                result.put("result", mhs);
-            }
-        }catch(Exception e){
-            result.put("code", "404");
-            result.put("status", "not found");
-            result.put("message", "Gagal karena : "+e.getMessage());
-        }
-        
-        return result;
-    }
+   
     
     @GET
     @Path("/getMhsWali/{id_dosen}")
@@ -135,74 +109,8 @@ public class DosenService extends MasterConnection{
                respon.put("statusId", "0");
            }
         return respon;
-    }
-    
-    
-    
-    @POST
-    @Path("/setujuiKontrak")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Object setujuiKontrak(@Context HttpServletRequest hsr){
-        Map respon = new HashMap();
-        DataInputStream in;
-        String line = null;
-        StringBuffer sb = new StringBuffer();
-        JSONObject request = null;
-        
-        try{
-            createConnection();
-            in = new DataInputStream(new BufferedInputStream(hsr.getInputStream()));
-            
-            while((line = in.readLine()) != null)
-                sb.append(line);
-            JSONObject json = new JSONObject(sb.toString());
-            request = (JSONObject) json.get("request");
-            
-//            String sql = " "
-//            MyMap mhs = (MyMap) jt.queryObject(sql, new Object[] {nrp},new MyMap());
-//            jt.up
-            closeConnection();
-            
-            
-            
-            
-        }catch(Exception e){
-            respon.put("message", e.getMessage());
-            respon.put("rCode", "99");
-            respon.put("statusId", "0");
-        }
-        
-        return respon;
-        
-    }
-    
-//    @PUT
-//    @Path("/dropMkMhs/{id_detail_perwalian}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Object dropMkMhs(@PathParam("id_detail_perwalian") String id){
-//        Map<String, Object> result = new HashMap<String, Object>();
-//        
-//        try{
-//            createConnection();
-//            
-//            String sql = "delete detail_perwalian where id_perwalian = ? ";
-//            MyMap delete = jt.d(sql, new Object[] {id});
-//            int a = jt.update(sql, new Object[] {id});
-            
-//            System.out.println(delete);
-//            
-//            closeConnection();
-//            
-//            result.put("result", "yeeeaaaa");
-//            
-//        }
-//        catch(Exception e){
-//            result.put("hasil", "ah");
-//            
-//        }
-//        return result;
-//    }
-    
+    }   
+   
     @DELETE
     @Path("/dropMkMhs")
     @Produces(MediaType.APPLICATION_JSON)
@@ -226,9 +134,6 @@ public class DosenService extends MasterConnection{
             String sql = "delete from detail_perwalian where id_detail_perwalian = ? ";
             int a = jt.update(sql, new Object[] {request.getInt("id_detail_perwalian")});
             
-//            String sql = " "
-//            MyMap mhs = (MyMap) jt.queryObject(sql, new Object[] {nrp},new MyMap());
-//            jt.up
             closeConnection();
             
             respon.put("rCode", "200");
@@ -268,6 +173,43 @@ public class DosenService extends MasterConnection{
             result.put("message", "Gagal karena : "+e.getMessage());
         }
         return result;
+    }
+    
+    @PUT
+    @Path("/insertBeritaAcara")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object insertBeritaAcara(@Context HttpServletRequest hsr){
+        DataInputStream in;
+        StringBuffer sb = new StringBuffer();
+        MyMap respon = new MyMap();
+        String line;
+        
+        
+         try{
+            createConnection();
+            in = new DataInputStream(new BufferedInputStream(hsr.getInputStream()));
+            
+            while((line = in.readLine()) != null)
+                sb.append(line);
+            
+            JSONObject json = new JSONObject(sb.toString());
+            JSONObject request = (JSONObject) json.get("request");
+            
+            String sql = "update perwalian set berita_acara = ? where id_perwalian = ?";
+            int a = jt.update(sql, new Object[] {request.getString("berita_acara"), request.getInt("id_perwalian")});
+            
+            closeConnection();
+            
+            respon.put("rCode", "200");
+            
+            
+        }catch(Exception e){
+            respon.put("message", e.getMessage());
+            respon.put("rCode", "99");
+            respon.put("statusId", "0");
+        }
+         
+         return respon;
     }
     
 }

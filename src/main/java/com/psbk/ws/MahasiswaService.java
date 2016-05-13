@@ -176,7 +176,7 @@ public class MahasiswaService extends MasterConnection{
                 jt.insert("detail_perwalian", dataP);
             }
             
-            System.out.println(idPerwalian);
+            respon.put("status", "berhasil");
         }catch(Exception e){
             respon.put("status", e.getMessage());
         }
