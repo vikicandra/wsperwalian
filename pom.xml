@@ -6,7 +6,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<artifactId>WS</artifactId>
 	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>PerwalianVer02</name>
+	<name>Perwalian</name>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<spring.version>4.1.6.RELEASE</spring.version>
