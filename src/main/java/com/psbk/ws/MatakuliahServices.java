@@ -42,10 +42,11 @@ public class MatakuliahServices extends MasterConnection{
                 result.put("message", "INQUIRY BERHASIL");
                 result.put("result", matkul);
                 
+            }else{
+                result.put("code", "404");
+                result.put("status", "not found");
             }
-        }catch(Exception e){
-            result.put("code", "404");
-            result.put("status", "not found");
+        }catch(Exception e){            
             result.put("message", "Gagal karena : "+e.getMessage());
         }
         return result;
@@ -67,11 +68,13 @@ public class MatakuliahServices extends MasterConnection{
                 result.put("status", "ok");
                 result.put("message", "INQUIRY BERHASIL");
                 result.put("result", matkul);
-                
+            }else{
+                result.put("code", "404");
+                result.put("status", "not found");
             }
+            
         }catch(Exception e){
-            result.put("code", "404");
-            result.put("status", "not found");
+            
             result.put("message", "Gagal karena : "+e.getMessage());
         }
         return result;

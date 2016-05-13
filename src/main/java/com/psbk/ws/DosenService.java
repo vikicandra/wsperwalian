@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -71,7 +72,7 @@ public class DosenService extends MasterConnection{
         try{
             
             createConnection();
-            String sql = "select M.nrp, M.nama, P.status from mahasiswa as M inner join perwalian as P "
+            String sql = "select M.nrp, M.nama, P.status, P.id_perwalian from mahasiswa as M inner join perwalian as P "
                        + "on M.nrp = P.nrp where id_dosen = ?";
             List<MyMap> mhs = jt.queryList(sql, new Object[] {id_dosen},new MyMap());
             closeConnection();
@@ -136,6 +137,8 @@ public class DosenService extends MasterConnection{
         return respon;
     }
     
+    
+    
     @POST
     @Path("/setujuiKontrak")
     @Produces(MediaType.APPLICATION_JSON)
@@ -173,44 +176,98 @@ public class DosenService extends MasterConnection{
         
     }
     
+//    @PUT
+//    @Path("/dropMkMhs/{id_detail_perwalian}")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Object dropMkMhs(@PathParam("id_detail_perwalian") String id){
+//        Map<String, Object> result = new HashMap<String, Object>();
+//        
+//        try{
+//            createConnection();
+//            
+//            String sql = "delete detail_perwalian where id_perwalian = ? ";
+//            MyMap delete = jt.d(sql, new Object[] {id});
+//            int a = jt.update(sql, new Object[] {id});
+            
+//            System.out.println(delete);
+//            
+//            closeConnection();
+//            
+//            result.put("result", "yeeeaaaa");
+//            
+//        }
+//        catch(Exception e){
+//            result.put("hasil", "ah");
+//            
+//        }
+//        return result;
+//    }
+    
     @DELETE
     @Path("/dropMkMhs")
     @Produces(MediaType.APPLICATION_JSON)
     public Object dropMkMhs(@Context HttpServletRequest hsr){
-        StringBuffer sb = new StringBuffer();
         DataInputStream in;
-        String line = null;
-        JSONArray jsonArray;
+        StringBuffer sb = new StringBuffer();
         MyMap respon = new MyMap();
+        String line;
         
-        try{
+        
+         try{
             createConnection();
             in = new DataInputStream(new BufferedInputStream(hsr.getInputStream()));
             
             while((line = in.readLine()) != null)
-                sb.append(sb);
+                sb.append(line);
             
             JSONObject json = new JSONObject(sb.toString());
-            jsonArray = (JSONArray) json.get("request");
-             System.out.println("AAAAAAAAA");
-             for (int i = 0; i < jsonArray.length() ; i++) {
-                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                json = (JSONObject) jsonObject.get("map");
-                
-                String sql = "delete from detail_perwalian where id_perwalian = ? and kode_mk = ?";
-                MyMap mkDrop = jt.query(sql, new Object[] {json.getInt("id_perwalian"), json.getString("kode_mk")});
-               
-            }
-              System.out.println("BBBBBB");
-             respon.put("hasil", "yes");
+            JSONObject request = (JSONObject) json.get("request");
+            
+            String sql = "delete from detail_perwalian where id_detail_perwalian = ? ";
+            int a = jt.update(sql, new Object[] {request.getInt("id_detail_perwalian")});
+            
+//            String sql = " "
+//            MyMap mhs = (MyMap) jt.queryObject(sql, new Object[] {nrp},new MyMap());
+//            jt.up
+            closeConnection();
+            
+            respon.put("rCode", "200");
             
             
+        }catch(Exception e){
+            respon.put("message", e.getMessage());
+            respon.put("rCode", "99");
+            respon.put("statusId", "0");
         }
-        catch(Exception e){
-            respon.put("hasil", "ah");
-            
-        }
+        
         return respon;
+        
+    }
+    
+    @GET
+    @Path("/detailMhs/{id_perwalian}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object detailMhs(@PathParam("id_perwalian") String id_p){
+        Map<String, Object> result = new HashMap<String, Object>();
+        try{
+            createConnection();
+            String sql = "select * from detail_perwalian where id_perwalian = ?";
+            List<MyMap> matkul = jt.queryList(sql, new Object[] {id_p}, new MyMap());
+            
+            if(matkul != null){
+                result.put("code", "200");
+                result.put("status", "ok");
+                result.put("message", "INQUIRY BERHASIL");
+                result.put("result", matkul);
+                
+            }else{
+                result.put("code", "404");
+                result.put("status", "not found");
+            }
+        }catch(Exception e){            
+            result.put("message", "Gagal karena : "+e.getMessage());
+        }
+        return result;
     }
     
 }

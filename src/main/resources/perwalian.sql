@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 13, 2016 at 03:13 AM
+-- Generation Time: May 13, 2016 at 08:35 PM
 -- Server version: 10.1.8-MariaDB
 -- PHP Version: 5.6.14
 
@@ -87,8 +87,7 @@ INSERT INTO `detail_perwalian` (`id_detail_perwalian`, `id_perwalian`, `kode_mk`
 (8, 14, 'IT102'),
 (9, 15, 'IT101'),
 (10, 15, 'IT102'),
-(11, 18, 'IT101'),
-(12, 18, 'IT102');
+(11, 18, 'IT101');
 
 -- --------------------------------------------------------
 
@@ -327,7 +326,7 @@ ALTER TABLE `berita_acara`
 -- AUTO_INCREMENT for table `detail_perwalian`
 --
 ALTER TABLE `detail_perwalian`
-  MODIFY `id_detail_perwalian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_detail_perwalian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT for table `kontrak_matakuliah`
 --
