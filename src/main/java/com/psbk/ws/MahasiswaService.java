@@ -91,14 +91,48 @@ public class MahasiswaService extends MasterConnection{
         return result;
     }
     
-    @POST
-    @Path("/insertMatkul")
+    @GET
+    @Path("/getDetailMhs/{nrp}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map insertMatkul(@Context HttpServletRequest hsr) throws JSONException{
-        Map response = new HashMap();
+    public Map getDetailMhs(@PathParam("nrp") String nrp){
+        Map<String, Object> result = new HashMap<String, Object>();
+        
+        result.put("message", "INQUIRY BERHASIL");
+        
+        try{
+            
+            createConnection();
+            String sql = "SELECT * FROM " +
+                        "matakuliah as M LEFT JOIN (detail_perwalian as DP join perwalian as P " +
+                        "ON DP.id_perwalian = P.id_perwalian and DP.id_perwalian = " +
+                        "(SELECT id_perwalian from perwalian where nrp = ?) )ON M.kode_mk = DP.kode_mk";
+            List<MyMap> mhs = jt.queryList(sql, new Object[] {nrp},new MyMap());
+            closeConnection();
+            if(mhs != null){
+                result.put("code", "200");
+                result.put("status", "ok");
+                result.put("result", mhs);
+            }
+        }catch(Exception e){
+            result.put("code", "404");
+            result.put("status", "not found");
+            result.put("message", "Gagal karena : "+e.getMessage());
+        }
+        
+        return result;
+    }
+    
+    @POST
+    @Path("/addMatkul")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object addMatkul(@Context HttpServletRequest hsr) throws JSONException{
+        MyMap respon = new MyMap();
+        MyMap data = new MyMap();
+        MyMap dataP = new MyMap();
         DataInputStream in;
         String line = null;
         StringBuffer sb = new StringBuffer();
+        JSONArray jsonArray;
         
         try{
             createConnection();
@@ -109,18 +143,45 @@ public class MahasiswaService extends MasterConnection{
                 sb.append(line);
             }
             JSONObject json = new JSONObject(sb.toString());
-            JSONObject request = (JSONObject) json.get("request");
+            jsonArray = (JSONArray) json.get("request");
             
-            if(request == null){
-                response.put("status", "null");
-            }else{
-                response.put("status", "ada");
+          for (int i = 0; i < jsonArray.length() ; i++) {
+                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                json = (JSONObject) jsonObject.get("map");
+                                
+                data.put("nrp", json.getString("nrp"));
+                data.put("semester", json.getInt("semester"));
+                data.put("status", json.getString("status"));
+                
+                if(i == 0){
+                    jt.insert("perwalian", data);
+                }   
+                
+                data.put("kode_mk", json.getString("kode_mk"));
+                
+                jt.insert("krs", data);
+                
             }
+          
+          String sql = "select id_perwalian from perwalian where nrp = ? and semester = ?";
+            int idPerwalian = jt.queryForInt(sql, new Object[] {json.getString("nrp"), +json.getInt("semester")});
+            
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                json = (JSONObject) jsonObject.get("map");
+                                
+                System.out.println("A");
+                dataP.put("id_perwalian", idPerwalian);
+                dataP.put("kode_mk", json.getString("kode_mk"));
+                jt.insert("detail_perwalian", dataP);
+            }
+            
+            System.out.println(idPerwalian);
         }catch(Exception e){
-            response.put("status", e.getMessage());
+            respon.put("status", e.getMessage());
         }
         
-        return response;
+        return respon;
     }
     
     
@@ -128,10 +189,12 @@ public class MahasiswaService extends MasterConnection{
     @Path("/coba")
     @Produces(MediaType.APPLICATION_JSON)
     public Object coba(@Context HttpServletRequest hsr){
-        JSONArray request = null;
+        JSONArray jsonArray = null;
+        JSONObject result;
         StringBuffer sb = new StringBuffer();
         DataInputStream in;
         MyMap respon = new MyMap(); 
+        MyMap data = new MyMap();
         String line;
         
         try{
@@ -142,10 +205,18 @@ public class MahasiswaService extends MasterConnection{
                 sb.append(line);
             
             JSONObject json = new JSONObject(sb.toString());
-            request = (JSONArray) json.get("result");
+            jsonArray = (JSONArray) json.get("result");
             
-            for (int i = 0; i < request.length() ; i++) {
-                System.out.println(i);
+            for (int i = 0; i < jsonArray.length() ; i++) {
+                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                json = (JSONObject) jsonObject.get("map");
+                                
+                data.put("nrp", json.getString("nrp"));
+                data.put("kode_mk", json.getString("kode_mk"));
+                data.put("semester", json.getInt("semester"));
+                data.put("status", json.getString("status"));
+                
+                jt.insert("kontrak_matakuliah", data);
             }
            
             
